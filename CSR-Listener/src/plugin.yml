@@ -1,0 +1,4 @@
+name: RedisTestA
+version: 0.1
+main: me.kate.redis.Main
+author: Kate

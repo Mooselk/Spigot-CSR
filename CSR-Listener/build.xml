@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="RedisA" default="makejar" basedir=".">
+    <target name="makejar" description="Create a jar for the project">
+        <mkdir dir="target"></mkdir>
+        
+        <jar destfile="C:\Servers\spigot-1.8.8\plugins\${ant.project.name}.jar">
+        	<zipfileset src="C:\Libraries\commons-pool2-2.9.0.jar" includes="**/*.java **/*.class"/>
+        	<zipfileset src="C:\Libraries\jedis-3.3.0.jar" includes="**/*.java **/*.class"/>
+            <fileset dir="bin"></fileset>
+        </jar>
+    </target>
+</project>

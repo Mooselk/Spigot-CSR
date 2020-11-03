@@ -1,0 +1,4 @@
+name: RedisTestB
+version: 0.1
+main: me.kate.receive.Main
+author: Kate

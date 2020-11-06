@@ -15,7 +15,6 @@ public class RedisThread {
 	
 	public void start() {
     	final JedisPoolConfig poolConfig = new JedisPoolConfig();
-        @SuppressWarnings("resource")
 		final JedisPool jedisPool = new JedisPool(poolConfig, "localhost", 6379, 0);
 		final Jedis subscriberJedis = jedisPool.getResource();
 		final RedisListener subscriber = new RedisListener(plugin);
@@ -24,7 +23,7 @@ public class RedisThread {
             @Override
             public void run() {
                 try {
-                	System.out.println("Subscribing to \"commonChannel\". This thread will be blocked.");
+                	System.out.println("Subscribing to " + plugin.channel + ". This thread will be blocked.");
                     subscriberJedis.subscribe(subscriber, plugin.channel);
                     System.out.println("Subscription ended.");
                 } catch (Exception e) {
@@ -33,6 +32,7 @@ public class RedisThread {
                 }
             }
         }).start();
+        jedisPool.close();
 	}
 	
 }

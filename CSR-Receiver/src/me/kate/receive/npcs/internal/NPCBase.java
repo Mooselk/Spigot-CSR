@@ -64,7 +64,8 @@ public abstract class NPCBase implements NPC, NPCPacketHandler {
     public NPCLib getInstance() {
         return instance;
     }
-
+    
+    @Override
     public String getName() {
     	return name;
     }
@@ -190,6 +191,11 @@ public abstract class NPCBase implements NPC, NPCPacketHandler {
     @Override
     public void show(Player player) {
         show(player, false);
+    }
+    
+    @Override
+    public void showAll() {
+    	instance.getPlugin().getServer().getOnlinePlayers().forEach(player -> show(player));
     }
 
     public void show(Player player, boolean auto) {

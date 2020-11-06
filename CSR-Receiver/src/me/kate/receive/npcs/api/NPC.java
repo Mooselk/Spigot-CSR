@@ -14,6 +14,10 @@ import me.kate.receive.npcs.api.state.NPCState;
 
 public interface NPC {
 
+	void showAll();
+	
+	String getName();
+	
     /**
      * Set the NPC's location.
      * Use this method before using {@link NPC#create}.

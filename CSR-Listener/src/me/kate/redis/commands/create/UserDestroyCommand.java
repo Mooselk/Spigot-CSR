@@ -1,16 +1,20 @@
 package me.kate.redis.commands.create;
 
+import java.util.UUID;
+
 import me.kate.redis.Main;
 import me.kate.redis.commands.Command;
 import me.kate.redis.commands.CommandType;
 
-public class UserCreateCommand extends Command {
+public class UserDestroyCommand extends Command {
 
+	private UUID uuid;
 	private CommandType type;
 	
-	public UserCreateCommand(Main plugin) {
+	public UserDestroyCommand(Main plugin, UUID uuid) {
 		super(plugin);
-		this.type = CommandType.USER_CREATE;
+		this.uuid = uuid;
+		this.type = CommandType.USER_DESTROY;
 	}
 
 	@Override
@@ -20,7 +24,7 @@ public class UserCreateCommand extends Command {
 
 	@Override
 	public String format() {
-		return null;
+		return uuid.toString() + ":" + type.toString();
 	}
 
 }

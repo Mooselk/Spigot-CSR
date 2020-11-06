@@ -1,17 +1,11 @@
 package me.kate.receive.redis;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-
 import me.kate.receive.Main;
-import me.kate.receive.npcs.api.NPC;
-import me.kate.receive.npcs.api.skin.Skin;
-import me.kate.receive.npcs.api.state.NPCAnimation;
-import me.kate.receive.npcs.api.state.NPCSlot;
-import me.kate.receive.npcs.api.state.NPCState;
-import me.kate.receive.npcs.internal.NPCManager;
-import me.kate.receive.utils.ItemBuilder;
-import me.kate.receive.utils.LocationUtils;
+import me.kate.receive.commands.CommandHandles;
+import me.kate.receive.commands.spigot.BlockCommand;
+import me.kate.receive.commands.spigot.CreationCommand;
+import me.kate.receive.commands.spigot.InventoryCommand;
+import me.kate.receive.commands.spigot.MovementCommand;
 import redis.clients.jedis.JedisPubSub;
 
 public class RedisListener extends JedisPubSub {
@@ -22,125 +16,29 @@ public class RedisListener extends JedisPubSub {
 		this.plugin = plugin;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public void onMessage(String channel, String message) {
 		
-		System.out.print("Message received. Channel: {" + channel + "}, Msg: {" + message + "}");
-		String[] msg = message.split(":");
-
-		if (msg[1].equalsIgnoreCase("spawn")) {
-			String uuid = msg[0];
-			String name = msg[2];
-			Skin skin = new Skin(name);
-			
-			Location loc = LocationUtils.toLoc("world", msg[3], msg[4], msg[5]);
-			
-			NPC npc = plugin.getLib().createNPC(name);
-			
-			plugin.getServer().getOnlinePlayers().forEach(player -> { 
-				player.sendMessage("[CSR] Adding new player " + name + " (" + uuid + ")");
-				player.sendMessage("[CSR] Creating new NPC puppet...");
-			});
-			
-			npc.setLocation(loc);
-			npc.setSkin(skin);
-			
-			plugin.getServer().getOnlinePlayers().forEach(player -> player.sendMessage("[CSR] Applying skin..."));
-			npc.create();
-			
-			plugin.getServer().getOnlinePlayers().forEach(player -> npc.show(player));
-			
-			plugin.getServer().getOnlinePlayers().forEach(player -> {
-				player.sendMessage("[CSR] Syncing...");
-				player.sendMessage("[CSR] Done!");
-			});
+		CommandHandles command = null;
+		String[] splitCommand = message.split(":"); 
+		String type = splitCommand[1];
+		
+		if (type.equals("spawn") || type.equals("destroy")) {
+			command = new CreationCommand(plugin, splitCommand);
+		} 
+		else if (type.equals("place") || type.equals("break")) {
+			command = new BlockCommand(plugin, splitCommand);
+		}
+		else if (type.equals("move") || type.equals("sneak")) {
+			command = new MovementCommand(plugin, splitCommand);
+		}
+		else if (type.equals("hotbar") || type.equals("interact")) {
+			command = new InventoryCommand(plugin, splitCommand);
 		}
 		
-		NPCManager.getAllNPCs().forEach(npc -> {
-			
-			switch (msg[1].toLowerCase()) {
-			
-				case "sneak" : {
-					String sneak = msg[2];
-					
-					// this works but, just 1 if else statement doesn't
-					if (sneak.equals("0")) {
-						npc.toggleState(NPCState.CROUCHED);
-					} else {
-						npc.toggleState(NPCState.STANDING);
-					}
-					
-					if (sneak.equals("1")) {
-						npc.toggleState(NPCState.CROUCHED);
-					} else {
-						npc.toggleState(NPCState.STANDING);
-					}
-					break;
-				}
-			
-				case "place" : {
-					npc.playAnimation(NPCAnimation.SWING_MAINHAND);
-				
-					Location loc = LocationUtils.toLoc("world", msg[2], msg[3], msg[4]);
-				
-					plugin.getServer().getScheduler().runTask(plugin, () -> {
-						loc.getBlock().setType(Material.valueOf(msg[5]));
-						loc.getBlock().setData(Byte.valueOf(msg[6]));
-					});
-					break;
-				}
-			
-				case "break" : {
-					Location loc = LocationUtils.toLoc("world", msg[2], msg[3], msg[4]);
-					
-					plugin.getServer().getScheduler().runTask(plugin, () -> {
-						loc.getBlock().setType(Material.AIR);
-					});
-					break;
-				}
-			
-				case "move" : {
-					Location loc = LocationUtils.toLoc("world", msg[2], msg[3], msg[4], msg[5], msg[6]);
-					Location old = npc.getLocation();
-					
-					npc.moveTo(old, loc);
-					npc.setLocation(loc);
-					break;
-				}
-			
-				case "hotbar" : {
-					npc.setItem(NPCSlot.MAINHAND, new ItemBuilder(msg[2]).setEnchanted(msg[3]).create());
-					break;
-				}
-				
-				case "interact" : {
-					npc.playAnimation(NPCAnimation.SWING_MAINHAND);
-					break;
-				}
-			
-			}
-		});
+		if (command != null) {
+			command.handle();
+		}
 	}
-
-	@Override
-	public void onPMessage(String pattern, String channel, String message) {
-	}
-
-	@Override
-	public void onSubscribe(String channel, int subscribedChannels) {
-	}
-
-	@Override
-	public void onUnsubscribe(String channel, int subscribedChannels) {
-	}
-
-	@Override
-	public void onPUnsubscribe(String pattern, int subscribedChannels) {
-	}
-
-	@Override
-	public void onPSubscribe(String pattern, int subscribedChannels) {
-	}
-
+	
 }

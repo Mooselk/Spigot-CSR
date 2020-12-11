@@ -3,18 +3,12 @@ package me.kate.receive.commands;
 import java.util.UUID;
 
 import me.kate.receive.CSRUser;
+import me.kate.receive.CSRUserManager;
 
 public abstract class CommandHandles {
 	
-	// should go in the CSRUser class
-	// but I don't want to call a static method
-	// when I don't need to
 	public CSRUser getUser(UUID uuid) {
-		CSRUser user = CSRUser.getUsers().get(uuid);
-		if (user != null) {
-			return user;
-		}
-		return null;
+		return CSRUserManager.getUser(uuid);
 	}
 	
 	// looks cleaner than calling

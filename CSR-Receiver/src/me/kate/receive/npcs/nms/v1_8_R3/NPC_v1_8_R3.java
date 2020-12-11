@@ -186,7 +186,7 @@ public class NPC_v1_8_R3 extends NPCBase {
         		y = Math.round(y);
         	}
 
-        	connection.sendPacket(new PacketPlayOutEntity.PacketPlayOutRelEntityMove(entityId, (byte) x, (byte) Math.round(y), (byte) z, false));
+        	connection.sendPacket(new PacketPlayOutEntity.PacketPlayOutRelEntityMove(entityId, (byte) Math.round(x), (byte) Math.round(y), (byte) Math.round(z), false));
         	connection.sendPacket(new PacketPlayOutEntity.PacketPlayOutEntityLook(entityId, (byte) ((int) location.getYaw() * 256.0F / 360.0F), (byte) ((int) location.getPitch() * 256.0F / 360.0F), false));
             connection.sendPacket(new PacketPlayOutEntityHeadRotationWrapper().create(from, entityId));
     	}

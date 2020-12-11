@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutionException;
 import org.bukkit.Location;
 
 import me.kate.receive.CSRUser;
+import me.kate.receive.CSRUserManager;
 import me.kate.receive.Main;
 import me.kate.receive.commands.CommandHandles;
 import me.kate.receive.npcs.api.NPC;
@@ -42,12 +43,13 @@ public class CreationCommand extends CommandHandles {
 	
 	@Override
 	public void spawn() {
-		NPC npc = null;		
+		NPC npc = null;
 		try {
 			npc = plugin.getLib().createNPC(name); this.sendDebug(1);
 			npc.setLocation(loc);
 			npc.setSkin(skin.future().get());	   this.sendDebug(2);
 			npc.showAll();						   this.sendDebug(3);
+			CSRUserManager.addUser(new CSRUser(uuid, npc));
 		} catch (IllegalStateException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -55,10 +57,7 @@ public class CreationCommand extends CommandHandles {
 
 	@Override
 	public void destory() {
-		CSRUser user = CSRUser.getUsers().remove(uuid);
-		if (user != null) {
-			user.destroy();
-		}
+		CSRUserManager.removeUser(uuid);
 	}
 	
 	@Override
@@ -69,7 +68,7 @@ public class CreationCommand extends CommandHandles {
 			this.destory();
 	}
 
-	private void sendDebug(int part) {
+	private final void sendDebug(int part) {
 		if (part == 1) {
 			plugin.getServer().getOnlinePlayers().forEach(player -> { 
 				player.sendMessage("[CSR] Adding new player " + name + " (" + uuid + ")");

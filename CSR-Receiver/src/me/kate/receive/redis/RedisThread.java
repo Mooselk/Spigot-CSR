@@ -14,6 +14,7 @@ public class RedisThread {
 	}
 	
 	public void start() {
+		
     	final JedisPoolConfig poolConfig = new JedisPoolConfig();
 		final JedisPool jedisPool = new JedisPool(poolConfig, "localhost", 6379, 0);
 		final Jedis subscriberJedis = jedisPool.getResource();
